@@ -20,6 +20,8 @@ app.get('/location/:id', (req, res) => {
   res.json(locations[id] || {});
 });
 
-app.listen(port, () => {
-  console.log(`Serverul rulează pe http://localhost:${port}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
+
