@@ -10,17 +10,17 @@ app.use(express.json());
 
 app.post('/update-location/:id', (req, res) => {
   const { id } = req.params;
-  const { lat, lng } = req.body;
+  const { lat, lng, speed } = req.body;
   const timestamp = Date.now();
 
   // Salvează ultima locație
-  locations[id] = { lat, lng, timestamp };
+  locations[id] = { lat, lng, speed, timestamp };
 
   // Salvează în istoric
   if (!locationsHistory[id]) locationsHistory[id] = [];
-  locationsHistory[id].push({ lat, lng, timestamp });
+  locationsHistory[id].push({ lat, lng, speed, timestamp });
 
-  console.log(`Primit locație de la ${id}:`, lat, lng);
+  console.log(`Primit locație de la ${id}: lat=${lat}, lng=${lng}, speed=${speed}`);
   res.sendStatus(200);
 });
 
@@ -33,9 +33,9 @@ app.get('/export/:id', (req, res) => {
   const { id } = req.params;
   const data = locationsHistory[id] || [];
 
-  let csv = 'lat,lng,timestamp\n';
+  let csv = 'lat,lng,speed,timestamp\n';
   data.forEach(loc => {
-    csv += `${loc.lat},${loc.lng},${new Date(loc.timestamp).toISOString()}\n`;
+    csv += `${loc.lat},${loc.lng},${loc.speed ?? ''},${new Date(loc.timestamp).toISOString()}\n`;
   });
 
   res.setHeader('Content-Type', 'text/csv');
