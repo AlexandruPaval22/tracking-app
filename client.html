@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Client Tracker</title>
+  <meta charset="utf-8" />
+</head>
+<body>
+  <h1>Trimite locația ta</h1>
+  <p>Asigură-te că ai permis accesul la locație</p>
+
+  <script>
+    const id = new URLSearchParams(window.location.search).get("id");
+
+    function sendLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocația nu este suportată de browser.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          fetch(`/update-location/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude
+            })
+          }).then(() => {
+            console.log("Trimis locația pentru:", id);
+          });
+        },
+        err => {
+          console.error("Eroare la obținere locație:", err);
+        }
+      );
+    }
+
+    sendLocation();
+    setInterval(sendLocation, 30000); // trimite la fiecare 30 de secunde
+  </script>
+</body>
+</html>

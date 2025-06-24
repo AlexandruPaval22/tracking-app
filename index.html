@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Multi Tracker</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>#map { height: 100vh; }</style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    window.onload = function() {
+      const ids = new URLSearchParams(window.location.search).get("ids")?.split(",") || [];
+      const map = L.map('map').setView([45.9432, 24.9668], 6);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+      const markers = {};
+      const colors = ["red", "blue", "green", "orange", "purple", "darkred"];
+
+      function getColorForId(id) {
+        const index = ids.indexOf(id);
+        return colors[index % colors.length];
+      }
+
+      function fetchAllLocations() {
+        ids.forEach(id => {
+          fetch(`/location/${id}`)
+            .then(res => res.json())
+            .then(data => {
+              if (!data.lat || !data.lng) return;
+              const latlng = [data.lat, data.lng];
+
+              if (!markers[id]) {
+                markers[id] = L.circleMarker(latlng, {
+                  color: getColorForId(id),
+                  radius: 8,
+                  fillOpacity: 0.8,
+                }).addTo(map).bindPopup(id).openPopup();
+              } else {
+                markers[id].setLatLng(latlng);
+              }
+            })
+            .catch(err => console.error("Eroare la fetch pentru", id, err));
+        });
+      }
+
+      fetchAllLocations();
+      setInterval(fetchAllLocations, 10000);
+    };
+  </script>
+</body>
+</html>
