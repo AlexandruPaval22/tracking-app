@@ -20,6 +20,12 @@ app.get('/location/:id', (req, res) => {
   res.json(locations[id] || {});
 });
 
+const path = require('path');
+
+app.get('/client', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
